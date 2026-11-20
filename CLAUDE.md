@@ -17,6 +17,8 @@ Detoks is the CMU 17-200 final project: a proof-of-concept short-form video app 
 
 ## Branching
 
+> **Bootstrap phase (current):** until the scaffolding is ready for the team, Nathan (with Claude) commits directly to `main` and pushes. The rules below take effect once this note is removed.
+
 - `main` is always demo-able. Never commit directly to `main`; all changes land through a pull request.
 - Branch from an up-to-date `main` and name branches `<type>/<short-topic>`, e.g. `feat/baseline-ranker`, `data/subset-selection`, `docs/plan-milestones`.
   - Types: `feat`, `fix`, `data`, `infra`, `docs`, `chore`, `refactor`, `test`.
