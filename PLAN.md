@@ -18,8 +18,19 @@ What it gives us:
 - **Precomputed visual features** (`video_feature_total/<video_id>.npy`): video embeddings, so we don't run our own encoder.
 - **User attributes** (age, gender, city tier): could seed the demo personas, e.g., a young user for Katie's kids.
 
+Sizes on the Tsinghua server (measured 2026-11-20):
+
+| Item | Files | Size |
+|---|---|---|
+| `raw_file/` (all clips) | 153,561 | **3.3 TB** (~21.6 MB per clip) |
+| `sample_raw_file/` (+ matching `sample_*` features and text) | 100 | 1.6 GB |
+| `video_feature_total/` | 153,561 | 1.3 GB |
+| `interaction_sampled.csv` | 1 | 153 MB |
+| `categories_cn_en.csv` | 1 | 31 KB |
+| `title_en/title_en/`, `asr_en/` | 153k each | small `.txt` files |
+
 Notes:
-- Download credentials are in the upstream README. A tiny Dropbox sample is linked there too; start with that.
+- Download credentials are in the upstream README. Start with the `sample_*` folders on the Tsinghua server.
 - The large-file server allows **3 concurrent connections**, so a full download is slow. Subset by user and video IDs first.
 - **No license is published.** The repo is public, so we never commit or rehost clips publicly. Host the subset in private storage and serve it only to the demo.
 - The content comes from a Chinese platform. English titles and ASR exist, but on-screen text and audio are mostly Chinese, so the classifier should rely on English text and visual features rather than raw audio.
