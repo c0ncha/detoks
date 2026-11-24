@@ -4,7 +4,7 @@ PY ?= .venv/bin/python
 .PHONY: help setup data classify ranker web sim test e2e
 
 help:  ## list commands
-	@grep -E '^[a-z]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-9s %s\n", $$1, $$2}'
+	@grep -E '^[a-z0-9]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-9s %s\n", $$1, $$2}'
 
 setup:  ## create .venv, install Python and web deps
 	test -d .venv || python3 -m venv .venv
