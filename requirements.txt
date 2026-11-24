@@ -1,2 +1,4 @@
+# Python deps for every service. Install with: pip install -r requirements.txt  (or `make setup`)
 numpy
 pandas
+-e services/ranker[dev]

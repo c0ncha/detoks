@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: detoks
+Version: 0.1.0
+Summary: Detoks core: catalog, session state, rankers and ranking API
+Requires-Python: >=3.11
+Requires-Dist: numpy
+Requires-Dist: fastapi
+Requires-Dist: uvicorn[standard]
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: httpx; extra == "dev"
