@@ -39,20 +39,23 @@ Commit incrementally as work and design progress. Each commit should be one cohe
 - Don't mix unrelated changes in one commit (e.g., a ranker change and a README fix).
 - Claude: commit after each completed step without being asked, on the current feature branch. Push and open PRs only when asked.
 
-## Layout (planned)
+## Layout
 
 ```
-apps/web/          Next.js PWA frontend
-services/ranker/   FastAPI ranking service (baseline + detoks rankers)
-services/classify/ harm classification (batch + upload path)
+apps/web/          Next.js 16 frontend (read node_modules/next/dist/docs before unfamiliar APIs)
+services/ranker/   `detoks` Python package: catalog, sessions, rankers, metrics, FastAPI app, tests
+services/classify/ harm classification (batch CLI)
 sim/               offline simulation and metrics
 data/              download/processing scripts; raw/ and processed/ are gitignored
-infra/             deployment config
-docs/              background, design notes, writeups
+infra/             deployment config (not yet)
+docs/              background, contributing guide, data notes
 ```
+
+[docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) maps each kind of feature to the file it belongs in. Commands: `make help`. Run `make test` before every PR.
 
 ## Data
 
+- `make data` = download the sample, run `data/build_catalog.py` (→ `data/processed/`), then run the classifier. Rebuild after changing the build script.
 - `data/download_sample.sh` downloads the 100-clip sample plus metadata into `data/raw/` (~2 GB). Re-runnable.
 - The full clip set is 3.3 TB. Never bulk-download `raw_file/`. Select a subset from the interaction CSV first.
 - Upstream misspells `interaciton` in some filenames; match the actual names on disk.

@@ -1,6 +1,6 @@
 # Detoks Project Plan
 
-Status: **draft**. The open decisions at the bottom block dates and some stack choices.
+Status: **draft**, with a working local proof of concept (2026-11-24). The open decisions at the bottom block dates and some stack choices. To find where a feature goes, see [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 ## Goal
 
@@ -91,6 +91,19 @@ Hosting: Vercel (web) + Cloud Run or Fly (ranker)
    **Label this clearly as simulation, not a well-being study.**
 3. **Scenario walkthroughs**: Bob, Katie, George.
 
+## Proof-of-concept decisions (2026-11-24)
+
+The skeleton runs locally end to end: sample clips → catalog → both rankers → swipe feed and compare mode → events → recap, plus the simulation. Decisions made to get there:
+
+- **Local-first, no cloud yet.** The catalog is files in `data/processed/` (`catalog.json`, `embeddings.npy`, `users.json`, `harm_labels.json`), and sessions live in memory behind `SessionStore`. Postgres + pgvector stays the plan for deployment. Deferring it keeps setup to `make setup && make data` while the cloud budget is open, and the swap is contained (`Catalog.load`, `SessionStore`).
+- **One core Python package (`detoks`, in `services/ranker/`)** shared by the API, the classifier and the simulation, so the app and the metrics run the same ranking code (`feed.next_batch`).
+- **Ranker = ranking + feed policy.** `rank()` orders candidates; a separate `FeedPolicy` decides ok / break / ended. Detoks is a pipeline of filters → weighted score terms → rerank (MMR + topic cap), so most features are one function appended to a list. Every ranked item carries per-term `reasons` for the "why?" UI and for ablations.
+- **Baseline** maximizes predicted watch seconds, and this session's watch time reinforces preference. **Detoks** reinforces on likes, shares and comments, penalizes passive streaks and harm, and diversifies.
+- **Visual embeddings are mean-pooled, then centered** before normalizing. Raw features have pairwise cosine ~0.998, which made MMR a no-op.
+- **One session stands in for one day** in the finite feed.
+- **The harm classifier is a keyword placeholder** behind a `HarmClassifier` interface, until the classifier decision below is made.
+- **The first simulation run does not yet show a diversity gain for Detoks.** See [sim/README.md](sim/README.md) for the numbers and likely causes. Fix the measurement before using any results.
+
 ## Milestones
 
 Dates are to be set once the deadline is confirmed.
@@ -104,16 +117,18 @@ Dates are to be set once the deadline is confirmed.
 | 4 | Simulation and dashboard | Both rankers evaluated on simulated users; dashboard shows the metrics |
 | 5 | Demo polish | Deployed, scripted walkthrough rehearsed |
 
-## Proposed repo layout
+Progress (2026-11-24), on the 78-clip sample: **M1** done locally (events are in memory, not Postgres). **M2** partial: the Detoks ranker and compare mode work, but the classifier is a placeholder. **M3** partial: caps, break cards, finite feed, recap and parent-control filters work; there's no parent settings UI and no friends or challenges yet. **M4** partial: the simulation harness exists, but there's no dashboard and the metrics need fixing. **M0** remaining: select the subset, set up Postgres and storage.
+
+## Repo layout
 
 ```
-apps/web/          Next.js frontend
-services/ranker/   FastAPI ranking service and both rankers
-services/classify/ harm classification (batch and upload path)
+apps/web/          Next.js 16 frontend: feed, compare, picker
+services/ranker/   `detoks` package: catalog, sessions, both rankers, metrics, FastAPI app, tests
+services/classify/ harm classification (batch CLI; upload path later)
 sim/               offline simulation and metrics
-data/              download scripts and subset manifests (no raw data committed)
-infra/             deployment config
-docs/              background, design notes, writeups
+data/              download + catalog build scripts, category label map (no raw data committed)
+infra/             deployment config (not yet)
+docs/              background, contributing guide, data notes
 ```
 
 ## Open decisions
@@ -124,6 +139,8 @@ docs/              background, design notes, writeups
 - [ ] **Team roles and language comfort** (Python / TypeScript)
 - [ ] **Cloud budget**: student credits, or free tiers only
 - [ ] **Classifier approach**: zero-shot CLIP on frames, an LLM on captions and thumbnails, or both
+- [ ] **Simulation metrics**: compare topic entropy at equal session length, and decide how Baseline should predict watch time (raw seconds is dominated by clip duration)
+- [ ] **When to move to Postgres**: needed for persistent history and for deployment; not needed for local development
 
 ## Notes
 
