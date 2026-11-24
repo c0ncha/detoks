@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { api, RANKER_URL, type Persona } from "@/lib/api";
+import { api, rankerUrl, type Persona } from "@/lib/api";
 
 export default function Picker() {
   const [personas, setPersonas] = useState<Persona[]>([]);
@@ -11,7 +11,7 @@ export default function Picker() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.personas().then(setPersonas).catch(() => setError(`Can't reach the ranker at ${RANKER_URL}. Is \`make ranker\` running?`));
+    api.personas().then(setPersonas).catch(() => setError(`Can't reach the ranker at ${rankerUrl()}. Is \`make ranker\` running?`));
   }, []);
 
   const q = (ranker?: string) => {

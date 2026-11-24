@@ -23,12 +23,11 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: `"${python}" e2e/fixture/make_fixture.py "${fixture}" && cd ../../services/ranker && "${python}" -m uvicorn detoks.api:app --port ${RANKER_PORT}`,
+      command: `"${python}" e2e/fixture/make_fixture.py "${fixture}" && cd ../../services/ranker && "${python}" -m uvicorn detoks.api:app --host 0.0.0.0 --port ${RANKER_PORT}`,
       url: `http://localhost:${RANKER_PORT}/health`,
       env: {
         DETOKS_DATA_DIR: path.join(fixture, "data"),
         DETOKS_CLIP_DIR: path.join(fixture, "clips"),
-        DETOKS_CORS_ORIGINS: `http://localhost:${WEB_PORT}`,
       },
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
@@ -36,7 +35,7 @@ export default defineConfig({
     {
       command: `npx next dev -p ${WEB_PORT}`,
       url: `http://localhost:${WEB_PORT}`,
-      env: { NEXT_DIST_DIR: ".next-e2e", NEXT_PUBLIC_RANKER_URL: `http://localhost:${RANKER_PORT}` },
+      env: { NEXT_DIST_DIR: ".next-e2e", NEXT_PUBLIC_RANKER_PORT: String(RANKER_PORT) },
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
     },

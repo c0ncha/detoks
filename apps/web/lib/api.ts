@@ -1,7 +1,14 @@
 // Typed client for the ranker API (services/ranker/detoks/api.py). Keep these types in sync with
 // the pydantic models there; FastAPI serves the schema at http://localhost:8000/docs.
 
-export const RANKER_URL = process.env.NEXT_PUBLIC_RANKER_URL ?? "http://localhost:8000";
+// NEXT_PUBLIC_RANKER_URL pins the API (e.g. in deployment). Otherwise the API is assumed to run on the same host
+// as the page, so a phone that opens http://<laptop-ip>:3000 talks to http://<laptop-ip>:8000.
+export function rankerUrl(): string {
+  if (process.env.NEXT_PUBLIC_RANKER_URL) return process.env.NEXT_PUBLIC_RANKER_URL;
+  const port = process.env.NEXT_PUBLIC_RANKER_PORT ?? "8000";
+  const host = typeof window === "undefined" ? "localhost" : window.location.hostname;
+  return `http://${host}:${port}`;
+}
 
 export type RankerName = "baseline" | "detoks";
 
@@ -60,7 +67,7 @@ export interface WatchEventIn {
 }
 
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${RANKER_URL}${path}`, {
+  const res = await fetch(`${rankerUrl()}${path}`, {
     ...init,
     headers: { "Content-Type": "application/json", ...init?.headers },
   });

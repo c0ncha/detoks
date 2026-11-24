@@ -19,8 +19,8 @@ data:  ## download the 100-clip sample (~2 GB, skips finished files) and build d
 classify:  ## re-run harm classification only
 	$(PY) services/classify/classify.py
 
-ranker:  ## run the ranking API on :8000 (docs at /docs)
-	cd services/ranker && ../../$(PY) -m uvicorn detoks.api:app --reload --port 8000
+ranker:  ## run the ranking API on :8000, reachable from your LAN (docs at /docs)
+	cd services/ranker && ../../$(PY) -m uvicorn detoks.api:app --reload --host 0.0.0.0 --port 8000
 
 web:  ## run the web app on :3000
 	cd apps/web && npm run dev

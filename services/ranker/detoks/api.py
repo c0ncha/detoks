@@ -95,7 +95,8 @@ def create_app(catalog: Catalog | None = None, users: dict[str, UserProfile] | N
     store = SessionStore()
 
     app = FastAPI(title="Detoks ranker", version="0.1.0")
-    app.add_middleware(CORSMiddleware, allow_origins=config.CORS_ORIGINS, allow_methods=["*"], allow_headers=["*"])
+    app.add_middleware(CORSMiddleware, allow_origins=config.CORS_ORIGINS, allow_origin_regex=config.CORS_ORIGIN_REGEX,
+                       allow_methods=["*"], allow_headers=["*"])
 
     def get_session(session_id: str) -> Session:
         s = store.get(session_id)
