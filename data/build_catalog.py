@@ -115,6 +115,9 @@ def main() -> None:
         })
 
     emb = np.stack(embs)
+    # Center before normalizing: raw features share a large common component (pairwise cosine ~0.998),
+    # which makes every video look identical to MMR. Centered, same-category pairs average ~0.2 vs ~0.0.
+    emb -= emb.mean(axis=0)
     emb /= np.linalg.norm(emb, axis=1, keepdims=True).clip(min=1e-8)  # unit-normalize for cosine
     np.save(f"{out}/embeddings.npy", emb.astype(np.float32))
     with open(f"{out}/catalog.json", "w", encoding="utf-8") as f:
