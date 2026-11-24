@@ -1,7 +1,7 @@
 # Detoks dev commands. Run `make help` for the list.
 PY ?= .venv/bin/python
 
-.PHONY: help setup data classify ranker web sim test lint
+.PHONY: help setup data classify ranker web sim test e2e
 
 help:  ## list commands
 	@grep -E '^[a-z]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-9s %s\n", $$1, $$2}'
@@ -9,7 +9,7 @@ help:  ## list commands
 setup:  ## create .venv, install Python and web deps
 	test -d .venv || python3 -m venv .venv
 	$(PY) -m pip install -q -r requirements.txt
-	cd apps/web && npm install
+	cd apps/web && npm install && npx playwright install chromium
 
 data:  ## download the 100-clip sample (~2 GB, skips finished files) and build data/processed
 	bash data/download_sample.sh
@@ -31,3 +31,6 @@ sim:  ## run the offline simulation (SIMULATION ONLY, see sim/README.md)
 test:  ## Python tests (no dataset needed) + web typecheck and lint
 	$(PY) -m pytest -q services/ranker
 	cd apps/web && npx tsc --noEmit && npm run lint
+
+e2e:  ## Playwright browser tests: real API + app on a synthetic fixture (needs ffmpeg; no dataset)
+	cd apps/web && npm run test:e2e

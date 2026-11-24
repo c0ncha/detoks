@@ -10,8 +10,11 @@ npm run dev          # http://localhost:3000 (start the ranker first: `make rank
 | Route | What |
 |---|---|
 | `/` | pick a viewer (persona or dataset user), a ranker, and an optional daily limit |
-| `/feed?user=bob&ranker=detoks&cap=10` | one feed |
+| `/feed?user=bob&ranker=detoks&cap=10&size=20` | one feed (`cap` minutes and `size` clips apply to Detoks) |
 | `/compare?user=bob` | Baseline and Detoks side by side |
+
+Tests: `npm run test:e2e` (or `make e2e` from the repo root) starts the ranker on a synthetic fixture
+(`e2e/fixture/make_fixture.py`, needs ffmpeg) and a dev server on :3100, then drives Chromium as a phone. `npx playwright test --ui` to debug.
 
 Code map:
 

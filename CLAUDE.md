@@ -27,6 +27,15 @@ Detoks is the CMU 17-200 final project: a proof-of-concept short-form video app 
 - PRs merge with a **merge commit** (not squash), so the incremental commit history below is preserved on `main`.
 - Delete the branch after merging.
 
+## Tests first
+
+Write the failing test before the code (red → green), one behavior at a time.
+
+- **Ranker, API, metrics:** pytest in `services/ranker/tests/` against the synthetic catalog in `conftest.py`.
+- **Anything a user sees or does in the app:** a Playwright test in `apps/web/e2e/` (`make e2e`). It drives the real API and app on a generated fixture dataset, so it needs ffmpeg but no download. Test through what the user sees (text, roles, playing video), not component internals; shared steps live in `e2e/helpers.ts`.
+- Run the new test, watch it fail for the reason you expect, then implement. If a test passes on its first run, break the code briefly to prove it can fail.
+- A bug report gets a test that reproduces it before the fix (e.g., `e2e/lan-access.spec.ts`).
+
 ## Commits
 
 Commit incrementally as work and design progress. Each commit should be one coherent step that a teammate can understand from the log alone.
@@ -51,7 +60,7 @@ infra/             deployment config (not yet)
 docs/              background, contributing guide, data notes
 ```
 
-[docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) maps each kind of feature to the file it belongs in. Commands: `make help`. Run `make test` before every PR.
+[docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) maps each kind of feature to the file it belongs in. Commands: `make help`. Run `make test` and `make e2e` before every PR.
 
 ## Data
 

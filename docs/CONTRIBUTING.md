@@ -9,10 +9,13 @@ make setup     # .venv + Python deps + web deps
 make data      # download the sample, build data/processed, run the harm classifier
 make ranker    # terminal 1: API on http://localhost:8000 (try /docs)
 make web       # terminal 2: app on http://localhost:3000
-make test      # before every PR; Python tests use a synthetic catalog and don't need the dataset
+make test      # Python tests + typecheck + lint; synthetic catalog, no dataset needed
+make e2e       # Playwright: real API + app in a browser on a generated fixture (needs ffmpeg)
 ```
 
-Requires Python ≥ 3.11 and Node ≥ 20.9.
+Requires Python ≥ 3.11, Node ≥ 20.9 and ffmpeg (for e2e fixtures). To use the app from your phone, open `http://<your-laptop-ip>:3000` on the same Wi-Fi; `make ranker` and `make web` both accept LAN connections.
+
+**Write the test first.** See "Tests first" in [CLAUDE.md](../CLAUDE.md). For app behavior, add a spec in `apps/web/e2e/`. The e2e servers run on ports 8100/3100 with their own build dir, so they don't disturb your dev servers. `npx playwright test --ui` (in `apps/web`) is the easiest way to watch and debug a test.
 
 ## How a video gets to the screen
 
@@ -67,6 +70,7 @@ Subclass `Ranker` (or `DetoksRanker`), give it a unique `name`, and register it 
 Add it to `session_summary` in `detoks/metrics.py` (the in-app recap gets it too), then to the row in `sim/simulate.py`. See [sim/README.md](../sim/README.md).
 
 ### Add a screen or card to the app
+Start with a Playwright spec in `apps/web/e2e/` that describes what the viewer sees and does.
 New routes go in `apps/web/app/<route>/`. A page that reads the URL is a server `page.tsx` that wraps a client component in `<Suspense>` (see `app/feed/`). New in-feed card types (e.g., a challenge prompt) go in the `Row` union in `components/Feed.tsx`. Next 16 differs from older versions, so check `apps/web/node_modules/next/dist/docs/` first.
 
 ### Add an API endpoint
