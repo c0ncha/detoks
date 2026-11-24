@@ -1,7 +1,27 @@
 @import "tailwindcss";
 
+/* Design tokens: see docs/design.md. Use as bg-ink, text-paper, text-ember, etc. */
+@theme {
+  --color-ink: #0f1110;
+  --color-night: #1b1e1b;
+  --color-paper: #f5f0e6;
+  --color-mist: #b9b4a8;
+  --color-stone: #6b675e;
+  --color-sage: #a8c3a0;
+  --color-moss: #4a6646;
+  --color-ember: #ee7f5c;
+  --color-sun: #f2c46d;
+  --color-plum: #6e4a5e;
+  --color-lake: #8fb3c9;
+  --color-ochre: #e7b36a;
+  --color-heather: #c99ab8;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+}
+
 body {
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
 }
 
 .no-scrollbar {

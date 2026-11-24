@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, type FeedItem, type FeedStatus, type RankerName, type Recap, type WatchEventIn } from "@/lib/api";
+import HorizonProgress from "./HorizonProgress";
 import VideoCard from "./VideoCard";
 
 type Row =
@@ -30,6 +31,7 @@ export default function Feed({ userId, ranker, label, dailyCapMinutes, feedSize 
   const [active, setActive] = useState(0);
   const [muted, setMuted] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [feedTotal, setFeedTotal] = useState<number | null>(null); // finite feeds only
   const session = useRef<string | null>(null);
   const rowCount = useRef(0);
   const loading = useRef(false);
@@ -61,6 +63,7 @@ export default function Feed({ userId, ranker, label, dailyCapMinutes, feedSize 
     loading.current = true;
     try {
       const { items, status } = await api.next(sid, BATCH);
+      setFeedTotal(status.feed_size);
       if (status.state === "ended" || items.length === 0) {
         endFeed(sid, status);
         return;
@@ -116,11 +119,17 @@ export default function Feed({ userId, ranker, label, dailyCapMinutes, feedSize 
     if (status?.state === "ended" && !ended.current) endFeed(sid, status, index);
   }, [endFeed]);
 
+  // Videos reached so far, counting the one on screen; the whole day once the end card is reached.
+  const atEnd = rows[active]?.kind === "end";
+  const reached = atEnd ? feedTotal ?? 0 : rows.slice(0, active + 1).filter((r) => r.kind === "video").length;
+
   return (
     <div className="flex h-full flex-col">
       {label && <div className="px-3 py-2 text-center text-sm font-semibold text-white/80">{label}</div>}
       {error && <div className="m-3 rounded bg-red-900/60 p-3 text-sm text-red-100">{error}</div>}
-      <div ref={container} className="no-scrollbar relative flex-1 snap-y snap-mandatory overflow-y-scroll rounded-xl bg-neutral-900">
+      <div className="relative min-h-0 flex-1">
+      {feedTotal !== null && <HorizonProgress current={Math.max(reached, 1)} total={feedTotal} />}
+      <div ref={container} className="no-scrollbar h-full snap-y snap-mandatory overflow-y-scroll rounded-xl bg-ink">
         {rows.map((row, i) => (
           <div key={row.key} data-index={i} className="h-full w-full snap-start snap-always">
             {row.kind === "video" && (
@@ -131,7 +140,8 @@ export default function Feed({ userId, ranker, label, dailyCapMinutes, feedSize 
             {row.kind === "end" && <EndCard status={row.status} active={i === active} loadRecap={loadRecap} />}
           </div>
         ))}
-        {rows.length === 0 && !error && <div className="p-6 text-center text-white/60">Loading…</div>}
+        {rows.length === 0 && !error && <div className="p-6 text-center text-mist">Loading…</div>}
+      </div>
       </div>
     </div>
   );
