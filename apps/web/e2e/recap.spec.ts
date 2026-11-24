@@ -6,7 +6,7 @@ test("a finished Detoks feed ends with a recap of what the viewer watched and sh
 
   for (let clip = 0; clip < 3; clip++) {
     await expectClipPlaying(page, 1.2); // of 3 s: counts as watched, not skipped
-    if (clip === 0) await page.getByRole("button", { name: "Share" }).first().click();
+    if (clip === 0) await page.getByRole("button", { name: "Send to a friend" }).first().click();
     await swipeToNext(page);
   }
 

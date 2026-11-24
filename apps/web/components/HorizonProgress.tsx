@@ -13,7 +13,7 @@ export default function HorizonProgress({ current, total }: { current: number; t
       aria-valuemax={total}
       aria-valuenow={current}
       aria-valuetext={`${current} of ${total}`}
-      className="pointer-events-none absolute inset-x-4 top-3 z-10 flex items-center gap-3"
+      className="pointer-events-none flex flex-1 items-center gap-3"
     >
       <div className="relative h-px flex-1 bg-paper/30">
         <div className="absolute inset-y-0 left-0 bg-paper/70 transition-[width] duration-500" style={{ width: `${frac * 100}%` }} />

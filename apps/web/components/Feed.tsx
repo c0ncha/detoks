@@ -16,6 +16,7 @@ interface Props {
   label?: string;
   dailyCapMinutes?: number;
   feedSize?: number;
+  header?: React.ReactNode; // shown top-left over the video, beside the progress line
 }
 
 const BATCH = 5;
@@ -25,7 +26,7 @@ const BATCH = 5;
  * continues (ok), pauses for a break card (break) or stops (ended); this component only renders that and reports
  * watch events. New card types (e.g. a challenge prompt) go in `Row` and the render switch below.
  */
-export default function Feed({ userId, ranker, label, dailyCapMinutes, feedSize }: Props) {
+export default function Feed({ userId, ranker, label, dailyCapMinutes, feedSize, header }: Props) {
   // Parents remount Feed (via `key`) to start a new session; see FeedPage/ComparePage.
   const [rows, setRows] = useState<Row[]>([]);
   const [active, setActive] = useState(0);
@@ -125,11 +126,14 @@ export default function Feed({ userId, ranker, label, dailyCapMinutes, feedSize 
 
   return (
     <div className="flex h-full flex-col">
-      {label && <div className="px-3 py-2 text-center text-sm font-semibold text-white/80">{label}</div>}
-      {error && <div className="m-3 rounded bg-red-900/60 p-3 text-sm text-red-100">{error}</div>}
+      {label && <div className="px-3 py-2 text-center text-sm font-medium text-mist">{label}</div>}
+      {error && <div className="m-3 rounded-xl bg-ember/15 p-3 text-sm text-ember">{error}</div>}
       <div className="relative min-h-0 flex-1">
-      {feedTotal !== null && <HorizonProgress current={Math.max(reached, 1)} total={feedTotal} />}
-      <div ref={container} className="no-scrollbar h-full snap-y snap-mandatory overflow-y-scroll rounded-xl bg-ink">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center gap-3 bg-gradient-to-b from-ink/50 to-transparent px-3 pb-6 pt-3 [&>*]:pointer-events-auto">
+        {header}
+        {feedTotal !== null ? <HorizonProgress current={Math.max(reached, 1)} total={feedTotal} /> : <div className="flex-1" />}
+      </div>
+      <div ref={container} className="no-scrollbar h-full snap-y snap-mandatory overflow-y-scroll bg-ink">
         {rows.map((row, i) => (
           <div key={row.key} data-index={i} className="h-full w-full snap-start snap-always">
             {row.kind === "video" && (

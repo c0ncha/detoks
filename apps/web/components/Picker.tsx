@@ -23,26 +23,26 @@ export default function Picker() {
 
   return (
     <div className="space-y-6">
-      {error && <div className="rounded bg-red-900/60 p-3 text-sm">{error}</div>}
+      {error && <div className="rounded-xl bg-ember/15 p-3 text-sm text-ember">{error}</div>}
       <section className="space-y-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-white/60">Who is watching</h2>
+        <h2 className="text-xs font-medium uppercase tracking-wider text-mist">Who is watching</h2>
         {personas.map((p) => (
-          <label key={p.user_id} className={`block cursor-pointer rounded-lg border p-3 ${user === p.user_id ? "border-sky-400 bg-sky-950/40" : "border-white/10"}`}>
+          <label key={p.user_id} className={`block cursor-pointer rounded-2xl border p-4 transition-colors ${user === p.user_id ? "border-sage bg-sage/10" : "border-paper/10 hover:border-paper/25"}`}>
             <input type="radio" name="user" className="sr-only" checked={user === p.user_id} onChange={() => setUser(p.user_id)} />
-            <div className="font-medium">{p.display_name}{p.parent_controls && <span className="ml-2 text-xs text-amber-300">parent controls</span>}</div>
-            <div className="text-sm text-white/60">{p.description}</div>
+            <div className="font-medium">{p.display_name}{p.parent_controls && <span className="ml-2 rounded-full bg-ochre/15 px-2 py-0.5 text-xs text-ochre">parent controls</span>}</div>
+            <div className="mt-0.5 text-sm text-mist">{p.description}</div>
           </label>
         ))}
       </section>
       <section className="space-y-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-white/60">Daily limit (Detoks only)</h2>
+        <h2 className="text-xs font-medium uppercase tracking-wider text-mist">Daily limit (Detoks only)</h2>
         <input type="number" min={1} placeholder="minutes, optional" value={cap} onChange={(e) => setCap(e.target.value)}
-          className="w-full rounded-lg border border-white/10 bg-transparent p-2" />
+          className="w-full rounded-2xl border border-paper/10 bg-transparent p-3 tabular-nums placeholder:text-stone focus:border-sage focus:outline-none" />
       </section>
       <section className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-        <Link href={`/feed?${q("baseline")}`} className="rounded-lg bg-neutral-700 p-3 text-center font-medium">Baseline feed</Link>
-        <Link href={`/feed?${q("detoks")}`} className="rounded-lg bg-emerald-700 p-3 text-center font-medium">Detoks feed</Link>
-        <Link href={`/compare?${q()}`} className="rounded-lg bg-sky-700 p-3 text-center font-medium">Compare side by side</Link>
+        <Link href={`/feed?${q("baseline")}`} className="rounded-full border border-paper/20 p-3 text-center font-medium">Baseline feed</Link>
+        <Link href={`/feed?${q("detoks")}`} className="rounded-full bg-sage p-3 text-center font-medium text-ink">Detoks feed</Link>
+        <Link href={`/compare?${q()}`} className="rounded-full border border-sage/50 p-3 text-center font-medium text-sage">Compare side by side</Link>
       </section>
     </div>
   );
