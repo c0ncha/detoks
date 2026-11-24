@@ -13,7 +13,7 @@ def entropy(counts: Counter | dict) -> float:
     total = sum(counts.values())
     if total <= 0:
         return 0.0
-    return -sum((c / total) * math.log2(c / total) for c in counts.values() if c > 0)
+    return max(0.0, -sum((c / total) * math.log2(c / total) for c in counts.values() if c > 0))
 
 
 def session_summary(session: Session, catalog: Catalog) -> dict:

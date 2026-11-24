@@ -62,7 +62,7 @@ def mmr_rerank(items: list[Ranked], catalog: Catalog, lam: float = 0.7,
         if per_category_cap is not None and counts[r.video.root_id] >= per_category_cap:
             capped.append(i)
             continue
-        r.reasons["similarity_to_recent"] = round(float(max_sim[k]), 4)
+        r.reasons["rerank.similarity_to_recent"] = round(float(max_sim[k]), 4)
         counts[r.video.root_id] += 1
         chosen.append(i)
     out = [items[i] for i in chosen]

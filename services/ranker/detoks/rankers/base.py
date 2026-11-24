@@ -5,8 +5,9 @@ A ranker has two jobs, kept separate so features can be added to either one:
   rank(user, session, candidates) -> list[Ranked]   what to show next, in order
   policy.status(session)          -> FeedStatus     whether to keep going, show a break, or end
 
-Every Ranked item carries `reasons` (score term -> contribution) so the UI can show
-"why am I seeing this" and the simulation can attribute effects to individual terms.
+Every Ranked item carries `reasons` (score term -> weighted contribution; they sum to `score`) so the UI
+can show "why am I seeing this" and the simulation can attribute effects to individual terms. Keys
+starting with "rerank." are diagnostics from a rerank step and are not part of the sum.
 """
 from __future__ import annotations
 
