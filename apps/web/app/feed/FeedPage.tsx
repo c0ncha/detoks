@@ -16,7 +16,8 @@ export default function FeedPage() {
       </div>
       <div className="min-h-0 flex-1">
         <Feed key={sp.toString()} userId={sp.get("user") ?? "bob"} ranker={ranker}
-          dailyCapMinutes={ranker === "detoks" ? parseNumber(sp.get("cap")) : undefined} />
+          dailyCapMinutes={ranker === "detoks" ? parseNumber(sp.get("cap")) : undefined}
+          feedSize={ranker === "detoks" ? parseNumber(sp.get("size")) : undefined} />
       </div>
     </main>
   );

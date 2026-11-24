@@ -7,7 +7,7 @@ import VideoCard from "./VideoCard";
 type Row =
   | { kind: "video"; key: string; item: FeedItem }
   | { kind: "break"; key: string; message: string }
-  | { kind: "end"; key: string; status: FeedStatus; recap: Recap | null };
+  | { kind: "end"; key: string; status: FeedStatus };
 
 interface Props {
   userId: string;
@@ -35,16 +35,24 @@ export default function Feed({ userId, ranker, label, dailyCapMinutes, feedSize 
   const loading = useRef(false);
   const ended = useRef(false);
   const container = useRef<HTMLDivElement>(null);
+  const pendingEvents = useRef<Promise<unknown>>(Promise.resolve());
 
   useEffect(() => { rowCount.current = rows.length; }, [rows.length]);
 
-  const endFeed = useCallback(async (sid: string, status: FeedStatus, afterIndex?: number) => {
+  const endFeed = useCallback((sid: string, status: FeedStatus, afterIndex?: number) => {
     ended.current = true;
-    const recap = await api.recap(sid).catch(() => null);
     setRows((prev) => {
       const kept = afterIndex === undefined ? prev : prev.slice(0, afterIndex + 1);
-      return [...kept.filter((r) => r.kind !== "end"), { kind: "end", key: `end-${sid}`, status, recap }];
+      return [...kept.filter((r) => r.kind !== "end"), { kind: "end", key: `end-${sid}`, status }];
     });
+  }, []);
+
+  // The recap must include every watch event, so it waits for the ones still in flight.
+  const loadRecap = useCallback(async (): Promise<Recap | null> => {
+    const sid = session.current;
+    if (!sid) return null;
+    await pendingEvents.current;
+    return api.recap(sid).catch(() => null);
   }, []);
 
   const loadMore = useCallback(async () => {
@@ -54,7 +62,7 @@ export default function Feed({ userId, ranker, label, dailyCapMinutes, feedSize 
     try {
       const { items, status } = await api.next(sid, BATCH);
       if (status.state === "ended" || items.length === 0) {
-        await endFeed(sid, status);
+        endFeed(sid, status);
         return;
       }
       setRows((prev) => [
@@ -101,7 +109,9 @@ export default function Feed({ userId, ranker, label, dailyCapMinutes, feedSize 
   const onLeave = useCallback(async (index: number, e: WatchEventIn) => {
     const sid = session.current;
     if (!sid) return;
-    const status = await api.event(sid, e).catch(() => null);
+    const sent = api.event(sid, e).catch(() => null);
+    pendingEvents.current = pendingEvents.current.then(() => sent);
+    const status = await sent;
     // A user-set time cap can end the feed mid-batch: drop the unwatched cards that were already loaded.
     if (status?.state === "ended" && !ended.current) endFeed(sid, status, index);
   }, [endFeed]);
@@ -118,7 +128,7 @@ export default function Feed({ userId, ranker, label, dailyCapMinutes, feedSize 
                 onToggleMute={() => setMuted((m) => !m)} onLeave={(e) => onLeave(i, e)} />
             )}
             {row.kind === "break" && <BreakCard message={row.message} />}
-            {row.kind === "end" && <EndCard status={row.status} recap={row.recap} />}
+            {row.kind === "end" && <EndCard status={row.status} active={i === active} loadRecap={loadRecap} />}
           </div>
         ))}
         {rows.length === 0 && !error && <div className="p-6 text-center text-white/60">Loading…</div>}
@@ -138,7 +148,18 @@ function BreakCard({ message }: { message: string }) {
   );
 }
 
-function EndCard({ status, recap }: { status: FeedStatus; recap: Recap | null }) {
+function EndCard({ status, active, loadRecap }: {
+  status: FeedStatus; active: boolean; loadRecap: () => Promise<Recap | null>;
+}) {
+  const [recap, setRecap] = useState<Recap | null>(null);
+  // Runs after the previous card's leave event is queued (React runs effect cleanups before new effects).
+  useEffect(() => {
+    if (!active) return;
+    let cancelled = false;
+    loadRecap().then((r) => { if (!cancelled) setRecap(r); });
+    return () => { cancelled = true; };
+  }, [active, loadRecap]);
+
   return (
     <div className="flex h-full flex-col justify-center gap-4 bg-indigo-950 p-8 text-white">
       <div className="text-2xl font-semibold">That&apos;s it for today</div>
